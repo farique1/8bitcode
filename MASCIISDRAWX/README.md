@@ -20,7 +20,7 @@ There is a `.dsk` file available on the **Releases** section.
 SCREEENSHOT_OF_CHARACTER_EDITING_SCREEN  
 VIDEO_OF_CGK_EDITING  
   
-Keys and mouse controls:  
+**Keys and mouse controls:**  
   
 	H				Help  
 	   ARROWS			  Navigate  
@@ -108,7 +108,7 @@ Keys and mouse controls:
 	  on the Edit Character screen. They can be edited and saved for  
 	  the current session.  
   
-Some planned features and ideas:  
+**Some planned features and ideas:**  
   
 	Support for Screen 1.5  
 	Importer for character pattern data  
