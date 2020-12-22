@@ -1,0 +1,618 @@
+##BB:override_config=/Users/Farique/Desktop/8Bit Stuff/CoCoTemp/CodeStuff/Semidraw24/xroarNoDisk.conf
+##BB:arguments=-rh,-ls 1,-lp 1
+
+## Relocate vídeo display area? re/512 must be int
+## re=3584:b=re/512:a=1:for i=65478 to 65490 step 2:poke i-((b and a)=a),0:a=a*2:next
+## poke 359.57 screen 0.1 ## keep orange
+## poke 359.128 restore
+
+' Semidraw24 - Paint and animate in semigraphics on a CoCo
+' Copyright (C) 2020 - Fred Rique (farique)
+' https://github.com/farique1/8bitcode
+' Convert(ed) from CoCo Basic Dignified with
+' https://github.com/farique1/coco-basic-dignified
+
+###
+Keys:
+	ARROWS 			- Move cursor, hold for continuous
+	/ 				- Toggle 1x12 move step
+	SPACE 			- Draw. Hold to keep drawing
+	M 				- Toggle continuous draw
+	, .				- Advance current character
+	, . + SHIFT		- Advance current character 16x
+	1-8				- Go to colors, cycle pattern
+	9 0				- Go to normal/inverted characters
+	B				- Stamp current character
+	C				- Copy character under cursor
+	V				- Paste copied character
+	;				- Invert location
+	:				- Invert Block
+	L				- Invert character
+	K				- Replace block color with seleced char's
+	N				- Get character under cursor
+	Z				- Toggle display hud
+	X				- Toggle display current character
+	ENTER			- Show character chart
+	?				- Help screen
+	CLEAR			- Clear screen with current character
+	CLEAR + SHIFT	- Clear screen with copy buffer
+	LEFT + SHIFT	- Toggle text mode
+	UP + SHIFT (TM)	- Toggle invert text in text mode
+	I				- Load image
+	O				- Save image
+	A				- Animate / exit animation
+	S				- Animation start frame
+	D				- Animation end frame
+	F				- Animation cell
+	G				- Show animation setup
+	0-9				- Animation speed
+HUD:
+	White			- Speed
+	Yellow			- Continuous draw
+	Red				- Text mode
+	Magenta			- Inverted characters (text mode)
+TODO:
+	get current character by typing a letter
+	key to align with top of corrent block
+	show char numbers on pick char screen
+	show component characters of a block in poke, ascii and chr$ values
+	file requester as in MASCIISDRAWX
+	screen area to &he00 as in Yayasg to support disk
+	Experimental PMODE and SCREEN modes
+	Copy/paste area
+		Allow paste of 1/2 hor block and 1/12 block vert increments on color blocks
+###
+
+define [onekey][a$=inkey$:if a$<>[chr$(13)]then{@}]
+define [anykey][exec&hadfb]
+define [key][peek(&h87)]
+define [clrkey][poke&h87,0]
+define [Y][&h59],[N][&h4e],[enter][&hd]
+## define [anykey][a$=inkey$:if a$=""then{@}]
+
+clear 200:
+.initialize()
+
+loop{
+	a$=inkey$:
+	poke d,&h80:
+	poke d,c:
+	if a$="" then {loop}
+	poke d,e:
+	if a$=r$ then .move(x):goto {loop}
+	if a$=l$ then .move(-x):goto {loop}
+	if a$=u$ then .move(-y):goto {loop}
+	if a$=d$ then .move(y):goto {loop}
+	if a$=t$ then ce=not ce:.displayHud()
+	if ce then .textMode():goto {loop}
+	if a$=" " then poke d,c: e=peek(d)
+	if a$="," then .chooseChar(-1)
+	if a$="." then .chooseChar(1)
+	if a$="<" then .chooseChar(-16)
+	if a$=">" then .chooseChar(16)
+	if a$>="0" and a$<="9" then .color()
+	if a$="X" then ch=not ch:.toggleChar()
+	if a$="Z" then hd=not hd:.toggleHud()
+	if a$="I" then .loadSave("LOAD")
+	if a$="O" then .loadSave("SAVE")
+	if a$="N" then c=peek(d):.displayChar()
+	if a$="Q" then screen 1,1 ## Experimental
+	a=instr(1,s$,a$):
+	on a gosub {charTable},{clearScreen},{clearScreen}_
+			  ,{toggleSpeed},{copy},{paste},{toggleDraw}_
+			  ,{stampChar},{helpScreen},{animPlay}_
+			  ,{defAnin},{defAnin},{defAnin},{animReveal}_
+			  ,{invertPos},{invertBlock},{invertChar}_
+			  ,{colorBlock}
+}
+
+func .move(m)
+	timer=0
+	{again1}
+	if cd or peek(&h159)=&hf7 then e=c
+	if peek(&h155)=&hdf then .invertPos()
+	poke d,e:
+	d+=m:
+	if d<&h400 then d+=&h1800
+	if d>&h1bff then d-=&h1800
+	e=peek(d):
+	poke d,c
+	{timer1}
+	if peek(&h155)=&hf7 _
+	   or peek(&h156)=&hf7 _
+	   or peek(&h157)=&hf7 _
+	   or peek(&h158)=&hf7 _
+		then poke &h155,&hff:
+			 poke &h156,&hff:
+			 poke &h157,&hff:
+			 poke &h158,&hff:
+			 if timer>30 _
+				 then poke d,&h80:
+					  goto {again1} _
+				 else poke d,&h80:
+				 	  goto {timer1}
+	poke &h87,0:
+return
+
+func .toggleSpeed()
+	x=(&h1-x)+&h1:
+	y=(&h180-y)+&h20:
+	.displayHud():
+return
+
+func .toggleDraw()
+	poke d,c:
+	e=peek(d):
+	cd=not cd:
+	.displayHud():
+return
+
+func .chooseChar(m)
+	timer=0
+	{again2}
+	c+=m:
+	if c<0 then c=255
+	if c>255 then c=0
+	.displayChar()
+	{timer2}
+	if peek(&h156)=&hdf _
+	   or peek(&h158)=&hdf _
+		then poke &h156,&hff:
+			 poke &h158,&hff:
+			 if timer>30 _
+				 then poke d,c:
+				 	  goto {again2} _
+				 else goto {timer2}
+	poke &h87,0:
+return
+
+func .textMode()
+	c=asc(a$):
+	if c<&h20 then goto {loop}
+	if c=&h5f then _
+		ci=not ci:
+		.displayHud():
+		goto {loop}
+	if c>=&h20 and c<=&h3f then c+=&h40
+	if ci then c-=&h40
+	.stampChar():
+	d+=1:
+	e=peek(d):
+return
+
+func .toggleChar()
+	if ch _
+		then get(248,12)-(255,23),ch:
+			 .displayChar(): return _
+		else put(248,12)-(255,23),ch:
+return
+
+func .displayChar()
+	if ch _
+		then for f=&h59f to &h6ff step &h20:
+				poke f,c:
+			 next: return _
+		else _
+return
+
+func .toggleHud()
+	if hd _
+		then get(248,0)-(255,11),hd:
+			 for f=&h41f to &h57f step &h20:
+				poke f,&h80:
+			 next:
+			 .displayHud(): return _
+		else put(248,0)-(255,11),hd:
+return
+
+func .displayHud()
+	if not hd _
+		then return _
+		else poke &h41f,&h80-((&h20-y)/&h160)*&h4f:
+			 poke &h45f,&h80-cd*&h1f:
+			 poke &h49f,&h80-ce*&h3f:
+			 poke &h4df,&h80-ci*&h6f:
+return
+
+func .copy()
+	.getTextPos(True):
+	get(m1,n1)-(m1+7,n1+11),cp:
+return
+
+func .paste()
+	.getTextPos(False):
+	put(m1,n1)-(m1+7,n1+11),cp:
+	e=peek(d):
+return
+
+func .color()
+	if a$<>b$ _
+		then pt=0:
+			 b$=a$ _
+		else pt+=5:
+			 pt=-(pt<11)*pt
+	c=(asc(a$)-&h30)*&h10+&h7f-pt:
+	c=c+(asc(a$)=&h39)*(c-&h60): ## if a$='9' then c=&h60
+	c=c+(asc(a$)=&h30)*(c-&h20): ## if a$='0' then c=&h20
+	.displayChar():
+return
+
+func .colorBlock()
+	if c< &h80 then return _
+		else _
+			.getTextPos(False):
+			for f=mn to mn+&h17f step &h20:
+				if peek(f)>&h80 then _
+					poke f,peek(f)+(int(c/16-7)-int(peek(f)/16-7))*16
+			next:
+			e=peek(d):
+return
+
+func .clearScreen()
+	.prepTxtScr():
+	?@&hc7,ys$:
+	[anykey]:
+	.exitTxtScr():
+	if [key]=[Y] then _
+		if a$=cs$ _
+			then .clearWChar() _
+			else .clearWCopy()
+	.toggleChar():
+	.toggleHud():
+	[clrkey]:
+return
+
+func .clearWChar()
+	e=c:
+	bt=((255-c)*3+3-(256*(2-int(c/85.5))))*int((c/255)+0.99609):
+	poke &hb3,bt:
+	pcls:
+	get(248,12)-(255,23),ch:
+return
+
+func .clearWCopy()
+	for f=0 to 248 step 8:
+		put(f,0)-(f+7,11),cp:
+	next:
+	get(0,0)-(255,11),sb:
+	for f=12 to 180 step 24:
+		put(0,f)-(255,f+11),sb:
+		put(0,180-f)-(255,180-f+11),sb:
+	next:
+	e=peek(d):
+	get(248,12)-(255,23),ch:
+return
+
+func .stampChar()
+	e=c:
+	.getTextPos(False):
+	for f=mn to mn+&h17f step &h20:
+		poke f,c:
+	next:
+return
+
+func .invertPos()
+	e=.invert(e):
+	poke d,e:
+return
+
+func .invertBlock()
+	.getTextPos(False):
+	for f=mn to mn+&h17f step &h20:
+		m=peek(f):
+		m=.invert(m):
+		poke f,m:
+	next:
+	.invertPos():
+return
+
+func .invertChar()
+	c=.invert(c):
+	.displayChar():
+return
+
+func .invert(n)
+	if n<&h40 _
+		then n+=&h40 _
+		else n-=&h40:
+			 if n>&h3f and n<&h80 _
+			 	then n+=&h80
+return n
+
+func .getTextPos(z)
+	n=((d-&h400)/&h20):
+	m=(n-int(n))/0.03125:
+	n=int(n/12):
+	m1=m*8:
+	n1=n*12:
+	mn=&h400+m+n*&h180:
+	if z then _
+		get(m1,n1)-(m1+7,n1+11),ac:
+		poke &hb2,&h3:line(m1,n1)-(m1+7,n1+11),pset,bf:
+		poke &hb2,&h23:line(m1,n1)-(m1+7,n1+11),pset,bf:
+		put(m1,n1)-(m1+7,n1+11),ac
+return
+
+func .charTable()
+	.prepTxtScr():
+	if not at then _
+		for f=0 to 255:
+			poke &h400+f,f:
+		next:
+		get(0,0)-(255,7),at:
+		at=True:
+		?@&h121,"BUFFERED. NO RENDER NEXT TIME!"_
+	else put(0,0)-(255,7),at
+	?@&h162,"arrows CHOOSE NEW CHACACTER"_
+	tab(&h42)"enter GET CHARACTER AND EXIT"_
+	tab(&h42)"any key EXIT WITHOUT GETTING";
+
+	n=peek(tc)
+	loopTable{
+		a$=inkey$:
+		poke tc,&hff:
+		poke tc,&h9f:
+		poke tc,n:
+		if a$="" then {loopTable}
+		tc-=(a$=r$)*&h1:
+		tc+=(a$=l$)*&h1:
+		tc+=(a$=u$)*&h20:
+		tc-=(a$=d$)*&h20:
+		if tc>&h4ff then tc-=&h100 _
+		else if tc<&h400 then tc+=&h100
+		n=peek(tc):
+		if a$=e$ then c=n: goto {exitTable} else _
+		if a$<>r$ and a$<>l$ and a$<>u$ and a$<>d$ then {exitTable}
+	}
+	{exitTable}
+	.exitTxtScr():
+return
+
+func .animPlay()
+	al=((ex-bx)+(((ey-by)/12)*256))/8:
+	m=0:
+	n=0
+	anim{
+		for f=0 to al:
+			get(bx+m,by+n)-(bx+m+7,by+n+11),ac:
+			put(ax,ay)-(ax+7,ay+11),ac:
+			m+=8:
+			if bx+m>255 then m=-bx:n+=12
+			a$=inkey$:
+			if a$="A" then return
+			if a$>"/" and a$<":" then fr=(asc(a$)-&h30)*20
+			for i=0 to fr:next:
+		next:
+		m=0:n=0
+	}
+return
+
+func .defAnin()
+	.getTextPos(True):
+	if a$="S" then _
+		ab=&h400+m+n*&h180:
+		bx=m1:
+		by=n1: return _
+	else if a$="D" then _
+		ae=&h400+m+n*&h180:
+		ex=m1:
+		ey=n1: return _
+	else _
+		ac=&h400+m+n*&h180:
+		ax=m1:
+		ay=n1:
+return
+
+func .animReveal()
+	f=d:
+ 	d=ab:.getTextPos(True):
+ 	d=ae:.getTextPos(True):
+ 	d=ac:.getTextPos(True):
+ 	d=f:
+return
+
+func .loadSave(ms$)
+	.prepTxtScr():
+	?@&h85,"INSERT CASSETE TO "+ms$_
+	tab(&h4a)"any key EXIT"_
+	tab(&h4b)"enter "+ms$:
+	[anykey]:
+	if [key]=[enter] then _
+		poke &hffd6,0:
+		if a$="O" _
+			then put(0,0)-(255,15),sb:
+				 csavem "SAART",&H400,&H1bFF,0:
+				 .exitTxtScr() _
+			else .exitTxtScr():
+				 cloadm
+	poke &hffd7+hs,0:
+	.exitTxtScr():
+	[clrkey]:
+return
+
+func .prepTxtScr()
+	ht=hd:hd=0:.toggleHud():
+	ct=ch:ch=0:.toggleChar():
+	get(0,0)-(255,15),sb:
+	cls:
+	screen 0,1:
+return
+
+func .exitTxtScr()
+	screen 0,0:
+	## Semigraphics
+	a=peek (&hff22): poke &hff22,(a and &h7):
+	poke &hffc5,1 :poke &hffc3,1 :poke &hffc0,0:
+	if a$<>"I" then put(0,0)-(255,15),sb
+	hd=ht:.toggleHud():
+	ch=ct:.toggleChar():
+return
+
+func .titleScreen()
+	.prepTxtScr():
+	m=0:
+	for f=0 to 9:
+		Poke&h42b+f,&h2d:
+		poke&h474-f,&h2d:
+		poke&h42a+(int(m)*&h20),&h20:
+		poke&h475-(int(m)*&h20),&h20:
+		m+=0.3:
+	next
+	?@&h4b,"semidraw";:
+	poke&h453,&h32:poke&h454,&h34:
+	?@&hca,"? - FOR HELP"_
+	tab(&h29)"(AFTER  START)"_
+	tab(&h48)"any key TO START"_
+	tab(&h42)"n TO DISABLE HIGH SPEED POKE"_
+	tab(&h67)"FRED RIQUE (C)2020"_
+	tab(&h22)"GITHUB.COM/FARIQUE1/8BITCODE";
+	poke &h4ca,peek(&h4ca)-&h40
+	[anykey]:
+	.exitTxtScr():
+return
+
+func .helpScreen()
+	.prepTxtScr()
+	redoHelp{
+		pg=1:
+		cls:
+		?@0,"KEYS HELP  semidraw24      PG"_
+		,"^=SHIFT":poke&h413,&h32:poke&h414,&h34:
+		?@29,str$(pg);
+		?@&h60,"ARROWS MOVEMENT. HOLD KEEP MOV."_
+		,,,"/ TOGGLE 12X VERTICAL MOVEMENT"_
+		,,,"SPACE DRAW. HOLD KEEP DRAWING"_
+		,,,"M TOGGLE CONTINUOUS DRAW"_
+		,,,", . PREVIOUS / NEXT CHARACTER"_
+		,,,", . + ^ JUMP 16 CHARACTERS"_
+		,,," any key NEXT PAGE   enter BACK";
+		.highlight(5,0,&h460):
+		if [key]=[enter] then {exitHelp}
+		pg+=1:?@29,str$(pg);:
+		?@&h60,"1-8 COLOR. AGAIN CYCLE PATTERNS"_
+		,,,"9 0 NORMAL / INVERTED CHARACTERS"_
+		,,"C V COPY / PASTE CHARACTER BLOCK"_
+		,,"B STAMP CURRENT CHARACTER"_
+		,,,"N GET CHARACTER UNDER CURSOR"_
+		,,,"; : L INV LOC / BLOCK / CHAR"
+		.highlight(5,6,&h460):
+		if [key]=[enter] then {exitHelp}
+		pg+=1:?@29,str$(pg);:
+		?@&h60,"LEFT + ^ TOGGLE TEXT MODE"_
+		,,,"UP + ^ TOGGLE INVERTED TEXT"_
+		,,,"CLEAR CLEAR SCREEN W/ CURR CHAR"_
+		,,,"CLEAR + ^ CLEAR WITH COPY BUFFER"_
+		,,"ENTER PICK CHARACTER FROM CHART"_
+		,,,"I O LOAD / SAVE CASSETE ONLY"
+		.highlight(5,12,&h460):
+		if [key]=[enter] then {exitHelp}
+		pg+=1:?@29,str$(pg);:
+		?@&h60,"K RECOLOR BLOCK WITH CHAR COLOR"_
+		,,," "_
+		,,,," "_
+		,,,," "_
+		,,,," "_
+		,,,," "
+		.highlight(0,18,&h460):
+		if [key]=[enter] then {exitHelp}
+		pg+=1:?@29,str$(pg);:
+		?@0,"HUD HELP ";:
+		?@&h60,"Z TOGGLE INFORMATION HUD"_
+		,,,"X TOGGLE SHOW CURRENT CHARACTER"_
+		,,,"WHITE IND HIGH SPEED ENABLED"_
+		,,,"YELLOW IND CONTINUOUS DRAW ENBLD"_
+		,,"RED IND TEXT MODE ENABLED"_
+		,,,"MAGENTA IND INV CHARACTER ENBLD"
+		.highlight(5,19,&h460):
+		if [key]=[enter] then {exitHelp}
+		pg+=1:?@29,str$(pg);:
+		?@0,"ANIM HELP";:
+		?@&h60,"A ANIMATE / EXIT ANIMATION"_
+		,,,"S SET START FRAME"_
+		,,,"D SET END FRAME"_
+		,,,,"F SET ANIMATION BLOCK"_
+		,,,"G SHOW ANIMATION SETUP"_
+		,,,"0-9 ANIMATION SPEED - WHILE ANIM";
+		.highlight(5,25,&h460):
+		if [key]=[enter] then {exitHelp}
+	}
+	{exitHelp}
+	[clrkey]:
+	.exitTxtScr():
+return
+
+func .highlight(mq,mp,ml)
+	for f=0 to mq:
+		for i=0 to hp(f+mp)-1:
+			m=ml+i+(f*&h40):
+			poke m,peek(m)-&h40:
+		next:
+	next:
+	[anykey]:
+return
+
+func .initialize()
+	if peek(&hbc)=&he then _
+		cls:
+		?@&h2c,"semianim"_
+		tab(&h85)"THIS PROGRAM CURRENTLY"_
+		tab(&h43)"DOESN'T SUPPORT DISK BASIC"_
+		,,,,,,,"SORRY FOR THAT":
+		end
+
+	pmode 4,1:		## Prime graphic addresses
+	poke &hba,&h4:	## Graph page to text page
+	poke&h167,&h39:	## Keep screen 0,1
+
+	r$=chr$(9):l$=chr$(8):				## Right, Left
+	u$=chr$(94):d$=chr$(10):			## Up, Down
+	e$=chr$(13):t$=chr$(21):			## Enter, Left+shift
+	cs$=chr$(12):cc$=chr$(92):			## Clear, Clear+shift
+	s$=e$+cs$+cc$+"/CVMB?ASDFG;:LK":	## String for the ON GOSUB
+	ys$="ARE YOU SURE? y n":
+	b$=""							## Previous color key
+
+	x=&h1: 			## Vertical step
+	y=&h20:			## Horizontal step
+	c=&h41:			## Current character
+	d=&h400:		## Screen position
+	e=&h60:			## Screen background
+	pt=&h0:			## Pattern of the color blocks
+	tc=&h400:		## Chart cursor position
+	ab=&h400:		## Animation start
+	ae=&h400:		## Animation block end
+	ac=&h400:		## Animation cell
+	fr=0:			## Frame rate
+	ce=False:		## Toggle text mode
+	ci=False:		## Invert char in text mode
+	cd=False:		## Continuous draw
+	ch=True:		## Show current character
+	hd=True:		## Show HUD
+	at=False:		## Character table
+	dim ch(8),_ 	## Show curr char buffer
+		hd(8),_		## HUD buffer
+	 	cp(8),_		## Copy buffer
+	 	sb(512),_	## Screen buffer and clear screen
+	 	hp(31),_	## Help highlight lengths
+	 	at(256),_	## Character table
+	 	ac(8)		## Animation buffer
+
+	for f=0 to 30:read a:hp(f)=a:next:
+
+	.titleScreen():
+	hs=([key]=[N]):
+	poke &hffd7+hs,0:	## High speed poke
+	[clrkey]:
+	poke &hb3,&he0:
+	pcls:
+	get(248,12)-(255,23),ch:
+	.toggleHud():
+return
+
+## Highlight lengths on the help pages
+data 6,1,5,1,3,7_
+	,3,3,3,1,1,5_
+	,8,6,5,9,5,3_
+	,1_
+	,1,1,9,10,7,11_
+	,1,1,1,1,1,3
