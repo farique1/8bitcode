@@ -2,7 +2,7 @@
   
  A bunch of projects for the computers of the **8 bit** era, mostly **MSX 1** and **CoCo 2.**  
   
-## [Yayasg!](temp)  
+## [Yayasg!](https://github.com/farique1/8bitcode/tree/main/Yayasg)  
 **Yet Another Yet Another Snake Game!**  
 **`MSX` `CoCo`**  
   
@@ -15,7 +15,7 @@ Screen 1.5<sup>[1](#references)</sup> coming soon.
   
 I always bragged that I knew **Assembly** but I've never coded anything more than a few small **helper routines** for may **Basic** programs. No more. I decided to make a complete and "useful" program in Assembly to call my own. Also I wanted to explore the undocumented **Screen 1.5** mode on the **MSX** and do something nice with it.  
   
-## [Semidraw24](temp)  
+## [Semidraw24](https://github.com/farique1/8bitcode/tree/main/Semidraw24)  
 **A Semigraphics 24 drawing program with a touch of animation**  
 **`CoCo`**  
   
