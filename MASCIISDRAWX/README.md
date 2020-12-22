@@ -1,6 +1,6 @@
 # MASCIISDRAWX  
 **A Screen 1 drawing program in Assembly**  
-Screen 1.5<sup>[1](#refs)</sup> coming soon.  
+Screen 1.5<sup>[1](#references)</sup> coming soon.  
 **`MSX`**  
   
 I always bragged that I knew **Assembly** but I've never coded anything more than a few small **helper routines** for may **Basic** programs. No more. I decided to make a complete and "useful" program in Assembly to call my own. Also I wanted to explore the undocumented **Screen 1.5** mode on the **MSX** and do something nice with it.  
@@ -22,86 +22,86 @@ VIDEO_OF_CGK_EDITING
   
 Keys and mouse controls:  
   
-	H					Help  
-	   ARROWS				  Navigate  
-	   ANY KEY				  Exit  
-	ARROWS MOUSE				Move  
-	 +SHIFT					Move * 4  
-	SPACE BUTTON1				Draw  
-	BS BUTTON2				Erase  
-	M					Toggle mouse  
-	Z X					Cycle characters  
-	 +SHIFT					Cycle characters * 16  
-	7 8					Cycle cursor color  
-	9 0					Cycle border color  
-	N 					Pick character under cursor  
-	B					Cycle box modes:  
-						 Filled box with current character  
-						 Hollow box with current character  
-						 Box with lines  
-						 Box with lines adding them  
-						 Box with sequential characters  
-	   ENTER BUTTON1 SPACE		  	  Draw  
-	   ESC BS C BUTTON2		 	  Cancel  
-	C					Copy area and enter paste mode  
-	V					Paste previous copy  
-	   ENTER BUTTON1 SPACE			  Paste  
-	   BS BUTTON2				  Erase area  
-	   C V					  Cancel  
-	/					Show character map picker  
-	   ENTER BUTTON1 SPACE			  Pick and leave  
-	   BS BUTTON2				  Pick erase character and leave  
-	   ESC /				  Leave  
-	?					Get current character by typing  
-	   ESC					  Leave without changing  
-	T					Enter text by typing  
-	   ENTER CTRL+STOP			  Leave  
-	W A S D					Scroll up left down right  
-	Q E					Flip vertical horizontal  
-	 +SHIFT					Also flip patterns  
-	F					Swap screen buffers  
-	U					Undo (some functions)  
-	Y					Quick save (lose undo)  
-	ESC					Clear screen  
-	 +SHIFT					Clear screen w/ current character  
-	 +CTRL					Reset screen  
-	Q+CTRL					Quit  
-  
-	.					Enter edit character mode  
-	   ARROWS MOUSE				  Move  
-	    +SHIFT				  Move * 4  
-	   SPACE BUTTON1		   	  Toggle bit / Choose character  
-	   Z X					  Cycle characters  
-	    +SHIFT				  Cycle characters * 16  
-	   1 2					  Cycle foreground color  
-	   3 4					  Cycle background color  
-	   W A S D				  Scroll character  
-	   Q E					  Flip character vertical horzontal  
-	   R F					  Rotate character  
-	   H					  Invert character  
-	   J					  Create checkerboard  
-	   K					  Clear character  
-	   L					  Fill character  
-	   C					  Copy character  
-	   V			   		  Paste all  
-	    +SHIFT				  Paste pattern  
-	    +CTRL				  Paste color  
-	   U					  Undo  
-	   Y					  Quick save (lose undo)  
-	   TAB					  Swap working characters location  
-	   BS					  Save working characters  
-	   ESC					  Exit without saving  
-	   .					  Exit  
-  
-	O I					Save / Load file  
-						  ^ = There are more files  
-	   ARROWS				  Choose a file  
-	   ENTER(2x)				  Pick and save or load the file  
-	   SPACE				  Write a name (ENTER blank to leave)  
-	   E					  Change the extension to list  
-	   D					  Delete the file (ENTER Y confirm)  
-	   ESC					  Cancel  
-  
+	H				Help  
+	   ARROWS			  Navigate  
+	   ANY KEY			  Exit  
+	ARROWS MOUSE			Move  
+	 +SHIFT				Move * 4  
+	SPACE BUTTON1			Draw  
+	BS BUTTON2			Erase  
+	M				Toggle mouse  
+	Z X				Cycle characters  
+	 +SHIFT				Cycle characters * 16  
+	7 8				Cycle cursor color  
+	9 0				Cycle border color  
+	N 				Pick character under cursor  
+	B				Cycle box modes:  
+					 Filled box with current character  
+					 Hollow box with current character  
+					 Box with lines  
+					 Box with lines adding them  
+					 Box with sequential characters  
+	   ENTER BUTTON1 SPACE	  	  Draw  
+	   ESC BS C BUTTON2	 	  Cancel  
+	C				Copy area and enter paste mode  
+	V				Paste previous copy  
+	   ENTER BUTTON1 SPACE		  Paste  
+	   BS BUTTON2			  Erase area  
+	   C V				  Cancel  
+	/				Show character map picker  
+	   ENTER BUTTON1 SPACE		  Pick and leave  
+	   BS BUTTON2			  Pick erase character and leave  
+	   ESC /			  Leave  
+	?				Get current character by typing  
+	   ESC				  Leave without changing  
+	T				Enter text by typing  
+	   ENTER CTRL+STOP		  Leave  
+	W A S D				Scroll up left down right  
+	Q E				Flip vertical horizontal  
+	 +SHIFT				Also flip patterns  
+	F				Swap screen buffers  
+	U				Undo (some functions)  
+	Y				Quick save (lose undo)  
+	ESC				Clear screen  
+	 +SHIFT				Clear screen w/ current character  
+	 +CTRL				Reset screen  
+	Q+CTRL				Quit  
+ 	
+	.				Enter edit character mode  
+	   ARROWS MOUSE			  Move  
+	    +SHIFT			  Move * 4  
+	   SPACE BUTTON1	   	  Toggle bit / Choose character  
+	   Z X				  Cycle characters  
+	    +SHIFT			  Cycle characters * 16  
+	   1 2				  Cycle foreground color  
+	   3 4				  Cycle background color  
+	   W A S D			  Scroll character  
+	   Q E				  Flip character vertical horzontal  
+	   R F				  Rotate character  
+	   H				  Invert character  
+	   J				  Create checkerboard  
+	   K				  Clear character  
+	   L				  Fill character  
+	   C				  Copy character  
+	   V			   	  Paste all  
+	    +SHIFT			  Paste pattern  
+	    +CTRL			  Paste color  
+	   U				  Undo  
+	   Y				  Quick save (lose undo)  
+	   TAB				  Swap working characters location  
+	   BS				  Save working characters  
+	   ESC				  Exit without saving  
+	   .				  Exit  
+ 	
+	O I				Save / Load file  
+					  ^ = There are more files  
+	   ARROWS			  Choose a file  
+	   ENTER(2x)			  Pick and save or load the file  
+	   SPACE			  Write a name (ENTER blank to leave)  
+	   E				  Change the extension to list  
+	   D				  Delete the file (ENTER Y confirm)  
+	   ESC				  Cancel  
+  	
 	* A lot of the tools functions on the edit character screen  
 	  depend on where the cursor is, the character map or grid area.  
 	* Working characters are the grid and background characters  
