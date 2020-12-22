@@ -1,6 +1,6 @@
 # MASCIISDRAWX  
 **A Screen 1 drawing program in Assembly**  
-Screen 1.5 <sup>[1](###refs)</sup> coming soon.  
+Screen 1.5 <sup>[1](#refs)</sup> coming soon.  
 **`MSX`**  
   
 I always bragged that I knew **Assembly** but I've never coded anything more than a few small **helper routines** for may **Basic** programs. No more. I decided to make a complete and "useful" program in Assembly to call my own. Also I wanted to explore the undocumented **Screen 1.5** mode on the **MSX** and do something nice with it.  
