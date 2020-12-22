@@ -1,0 +1,483 @@
+## BB:throttle=True
+## BB:arguments=-rh
+
+' YAYASG - Yet Another Yet Anoter Snake Game
+' Screen 1.5 version (Full Color)
+' Copyright (C) 2020 - Fred Rique (farique)
+' https://github.com/farique1/Retrorepo
+' Made with MSX Basic Dignified
+' Convert(ed) to classic MSX Basic with
+' https://github.com/farique1/msx-basic-dignified
+
+## Initialize
+keep #1
+define [pause][for f=1 to[10]:next]
+define [key][if inkey$<>[e$]then {@}]
+
+on error goto {error}
+
+screen 1,,0 :width 32 :key off :color 15,1,1:
+
+gosub {variables}:
+gosub {buildScreen}:
+gosub {config}:
+gosub {bait}:
+
+[?@]0,0 "SIZE:1   TIME:0   @ S:1   T:0  "
+
+{restart}
+time=0
+
+## Main Loop
+mainLoop{
+	a$=inkey$
+	if a$=r$ then d=1
+	if a$=l$ then d=-1
+	if a$=u$ then d=-&h20
+	if a$=d$ then d=&h20
+
+	vpoke p+&h1800,&h18: ## Tail
+	p+=d:
+	c(p-d)=p:
+	a=vpeek(p+&h1800):
+	vpoke p+&h1800,&h2: ## Head
+
+	## On the grass
+	if (a>&hbf) and a<&hd0 then _    ## is on grass?
+		vpoke e+&h1800,a:
+		e=c(e):
+		[pause]i:
+		goto {mainLoop}
+
+	## Hit the wall
+	if (a<&hd0) or a>&hd7 then {end}	## is not a worm
+
+	## Ate a worm
+	l=g(rnd(1)*&h276):
+		if vpeek(l)<192 or vpeek(l)>&hcf then {@}
+	s+=1:
+	i=(100/(s+3))+v:
+	vpoke l,&hd0+rnd(1)*8
+}
+
+## Ending
+{end}
+	t=time/60:
+	vpoke p+&h1800,a:
+	## vpoke &h2003,&hd3:
+	vpoke &h20c0,&hd2:
+	vpoke &h20c1,&hd2:
+	vpoke &h20c2,&hd7:
+	vpoke &h20c3,&hd7:
+	vpoke &h20c4,&hd7:
+	vpoke &h20c5,&hd7:
+	vpoke &h20c6,&hd2:
+	vpoke &h20c7,&hd2
+	ss=len(str$(s))-1:
+	[?@]5,0 "    ":
+	[?@]5,0 right$(str$(s),ss):
+	st=len(str$(t))-1:
+	[?@]14,0 "    ":
+	[?@]14,0 right$(str$(t),st)
+
+	[key]
+
+	if s>ms then _
+		ms=s:
+		mt=t:
+		[?@]22,0 "    ":
+		[?@]22,0 right$(str$(ms),ss):
+		[?@]28,0 "    ":
+		[?@]28,0 right$(str$(mt),st)
+	np=e:
+	for f=0 to s-1:
+		vpoke np+&h1800,&hc0+rnd(1)*16:
+		np=c(np):
+	next:
+	## vpoke &h2003,&hb2
+	vpoke &h20c0,&ha2:
+	vpoke &h20c1,&ha2:
+	vpoke &h20c2,&hab:
+	vpoke &h20c3,&hab:
+	vpoke &h20c4,&hab:
+	vpoke &h20c5,&hab:
+	vpoke &h20c6,&ha2:
+	vpoke &h20c7,&ha2
+	p=&h145:
+	e=&h145:
+	d=1:
+	s=1:
+	i=(100/(s+3))+v:
+goto {restart}
+
+## initializing Routines
+{config}
+	vpoke &h2008,&h91:
+	vpoke &h2009,&h91:
+	vpoke &h200a,&h91:
+	vpoke &h200b,&h91:
+	for i=20 to 0 step -1:
+		[pause]50:
+		[?@]i,0 "Y A Y A S G ";:
+	next:
+	[?@]0,0 "YAYASG     ":
+	for i=30 to 6 step -1:
+		[pause]10:
+		[?@]i,0 "; ";:
+	next
+
+	cu=11:
+	[?@]cu,0 "<":
+	[?@]12,0 "START":
+	[?@]19,0 sp$(cs):
+	[?@]26,0 ba$(cb);
+
+	menu{
+		a$=inkey$
+		if a$=l$ and cu>12 then _
+			[?@]cu,0 " ":
+			cu-=7:
+			[?@]cu,0 "<"
+		if a$=r$ and cu<25 then _
+			[?@]cu,0 " ":
+			cu+=7:
+			[?@]cu,0 "<"
+		if a$=e$ and cu=11 then _
+			[?@]0,0 string$(32," ");:
+			vpoke &h2008,&hf1:
+			vpoke &h2009,&hf1:
+			vpoke &h200a,&hf1:
+			vpoke &h200b,&hf1:
+			return
+		if a$=e$ and cu=18 then _
+			cs++:
+			cs=cs mod 2:
+			[?@]19,0 sp$(cs):
+			v=sp(cs):
+			i=(100/(s+3))+v
+		if a$=e$ and cu=25 then _
+			cb++:
+			cb=cb mod 3:
+			[?@]26,0 ba$(cb)
+	}
+
+{variables}
+	defint a-z:
+	r$=chr$(&h1c):l$=chr$(&h1d):
+	u$=chr$(&h1e):d$=chr$(&h1f):
+	e$=chr$(&hd):
+	p=&h145:
+	e=&h145:
+	d=1:
+	s=1:
+	ms=0:
+	mt=0
+	dim c(&h300):
+	dim g(&h276):
+	dim sp$(2),sp(2),ba$(3),ba(3):
+	sp$(0)="FAST":sp$(1)="SLOW":
+	sp(0)=0:sp(1)=50:
+	ba$(0)="HUNGRY":ba$(1)="PLENTY":ba$(2)="FIESTA":
+	ba(0)=1:ba(1)=4:ba(2)=10:
+	cs=0:cb=1:
+	v=sp(cs):
+	i=(100/(s+3))+v:
+return
+
+{bait}
+	## Precompute screen positions
+	[?@]6,0 " TEASING THE WORMS ":
+	c=0:
+	for y=0 to &h280 step &h20:
+		for x=&h1841 to &h185e:
+			g(c)=x+y:
+			c++:
+		next:
+	next:
+	## Place bait
+	for f=1 to ba(cb)
+		l=g(rnd(1)*&h276):if vpeek(l)<192 or vpeek(l)>&hcf then {@}
+		vpoke l,&hd0+rnd(1)*8:
+	next:
+return
+
+{buildScreen}
+	bload "yayasgFC.scr",s:
+	[?@]6,0 "                   "
+	{noFile}
+	if er = 0 then _
+		## Make Screen 1.5
+		vdp(0)=vdp(0) or 2:
+		vdp(1)=vdp(1) and &he7:
+		vdp(3)=&h9f:vdp(4)=0:return
+
+	[?@]4,9 "GRAPHICS FILE NOT FOUND":
+	[?@]3,11 "PRESS ENTER TO CREATE ONE"
+	[key]
+	cls:
+	## Make Screen 1.5
+	vdp(0)=vdp(0) or 2
+	vdp(1)=vdp(1) and &he7
+	vdp(3)=&h9f:vdp(4)=0
+
+	gosub {characters}:
+	[?@]0,0 string$(32," ");
+	gosub {screen}:
+	[?@]6,0 "SAVING THE CREATION":
+	bsave "yayasgFC.scr",&h0,&h27ff,s:
+	[?@]6,0 "                   "
+return
+
+{screen}
+	## Playfield
+	## Wall
+	[?@]7,11 "BUILDING THE WALLS"
+	for f=1 to 30:
+		vpoke &h1820+f,rnd(1)*8+8:
+		vpoke &h1ae0+f,rnd(1)*8+8:
+		if f>1 and f<23 then _
+			vpoke &h1800+f*32,rnd(1)*8+8:
+			vpoke &h181f+f*32,rnd(1)*8+8
+	next:
+	vpoke &h1820,&h10
+	vpoke &h183f,&h11
+	vpoke &h1ae0,&h12
+	vpoke &h1aff,&h13
+	## Grass
+	[?@]7,13 "PLANTING THE GRASS":
+	for i=2 to 22:
+		for f=1 to 30:
+			[?@]f,i chr$(&hc0+rnd(1)*16);:
+		next:
+	next:
+return
+
+{characters}
+	[?@]7,9 "CREATING THE WORLD"
+
+	#1
+	for f=0 to &hff:
+		vpoke &h1800+f,f:
+	next:
+	locate 0,8
+	#1
+
+	## Numbers
+	for f=&h180 to &h1e7:
+		read a:
+		## Patterns
+		vpoke f,a:
+		## Color
+		vpoke &h2000+f,&h71
+	next
+
+	## Letters
+	c=&he1
+	for f=&h200 to &h2d7
+		read a
+		## Patterns
+		vpoke f,a
+		## Color
+		b=f mod 4
+		if b=0 then c=(&he1-c)+&hf1
+		vpoke &h2000+f,c
+	next
+
+	## Bricks patterns
+	dim b1(10):b1(0)=254:b1(1)=252:b1(2)=126:b1(3)=124:b1(4)=254:
+		b1(5)=254:b1(6)=254:b1(7)=254:b1(8)=254:b1(9)=254:
+	dim b2(10):b2(0)=239:b2(1)=207:b2(2)=231:b2(3)=199:b2(4)=239:
+		b2(5)=239:b2(6)=239:b2(7)=239:b2(8)=239:b2(9)=239
+
+	for f=0 to &h38 step 8
+		## Worm
+		## Pattern
+		vpoke &H680+f,60:
+		vpoke &h681+f,126:
+		vpoke &h682+f,219:
+		vpoke &h683+f,30*(2^int(rnd(1)*3)):
+		vpoke &h684+f,30*(2^int(rnd(1)*3)):
+		vpoke &h685+f,30*(2^int(rnd(1)*3)):
+		vpoke &h686+f,&h7e:
+		vpoke &h687+f,&hff
+		## Color
+		vpoke &H2680+f,&h52
+		vpoke &h2681+f,&h42
+		vpoke &h2682+f,&h5f
+		vpoke &h2683+f,&h42
+		vpoke &h2684+f,&h52
+		vpoke &h2685+f,&h42
+		vpoke &h2686+f,&h43
+		vpoke &h2687+f,&hc3
+
+		## Bricks
+		## Pattern
+		vpoke &h40+f,b1(rnd(1)*10):
+		vpoke &h41+f,b1(rnd(1)*10):
+		vpoke &h42+f,b1(rnd(1)*10):
+		vpoke &h43+f,0:
+		vpoke &h44+f,b2(rnd(1)*10):
+		vpoke &h45+f,b2(rnd(1)*10):
+		vpoke &h46+f,b2(rnd(1)*10):
+		vpoke &h47+f,0
+		## Color
+		vpoke &h2040+f,&h9f
+		vpoke &h2041+f,&h8f
+		vpoke &h2042+f,&h6f
+		vpoke &h2043+f,&h6e
+		vpoke &h2044+f,&h9f
+		vpoke &h2045+f,&h8f
+		vpoke &h2046+f,&h6f
+		vpoke &h2047+f,&h6e
+
+		## Grass
+		## Pattern
+		vpoke &h600+f,0:
+		vpoke &h601+f,0:
+		vpoke &h602+f,0:
+		vpoke &h603+f,0:
+		vpoke &h604+f,0:
+		vpoke &h605+f,0:
+		vpoke &h606+f,0:
+		vpoke &h607+f,0:
+		m=rnd(1)*6: ## Horz pos
+		n=rnd(1)*6: ## Vert pos
+		vpoke &h600+n+f,5*(2^m):
+		vpoke &h601+n+f,2^(m+1)
+		vpoke &h602+n+f,7*(2^m):
+		## Color
+		vpoke &h2600+f,2:
+		vpoke &h2601+f,2:
+		vpoke &h2602+f,2:
+		vpoke &h2603+f,2:
+		vpoke &h2604+f,2:
+		vpoke &h2605+f,2:
+		vpoke &h2606+f,2:
+		vpoke &h2607+f,2:
+		vpoke &h2600+n+f,&h32:
+		vpoke &h2601+n+f,&h32:
+		vpoke &h2602+n+f,&hc2
+	next
+
+	## Corner bricks
+	## Pattern
+	for f=0 to 31 step 8
+		vpoke &h80+f,b1(rnd(1)*10):
+		vpoke &h81+f,b1(rnd(1)*10):
+		vpoke &h82+f,b1(rnd(1)*10):
+		vpoke &h83+f,0:
+		vpoke &h84+f,b2(rnd(1)*10):
+		vpoke &h85+f,b2(rnd(1)*10):
+		vpoke &h86+f,b2(rnd(1)*10):
+		vpoke &h87+f,0
+		## Color
+		vpoke &h2080+f,&h9f
+		vpoke &h2081+f,&h8f
+		vpoke &h2082+f,&h6f
+		vpoke &h2083+f,&h6e
+		vpoke &h2084+f,&h9f
+		vpoke &h2085+f,&h8f
+		vpoke &h2086+f,&h6f
+		vpoke &h2087+f,&h6e
+	next
+	vpoke &h80,&h3f:
+	vpoke &h2080,&h91:
+	vpoke &h81,&h7f:
+	vpoke &h2081,&h81:
+
+	vpoke &h88,&hfc:
+	vpoke &h2088,&h91:
+	vpoke &h89,&hfe:
+	vpoke &h2089,&h81:
+	
+	vpoke &h96,&h7f:
+	vpoke &h2096,&h61:
+	vpoke &h97,&h3f:
+	vpoke &h2097,&he1:
+
+	vpoke &h9e,&hfe:
+	vpoke &h209e,&h61
+	vpoke &h9f,&hfc:
+	vpoke &h209f,&he1
+
+	## Snake body
+	## Pattern
+	vpoke &hc0,&hbd:
+	vpoke &hc1,&h7e:
+	vpoke &hc2,&he7:
+	vpoke &hc3,&hc3:
+	vpoke &hc4,&hc3:
+	vpoke &hc5,&he7:
+	vpoke &hc6,&h7e:
+	vpoke &hc7,&hbd
+	## Color
+	vpoke &h2010,&ha2:
+	vpoke &h2011,&ha2:
+	vpoke &h2012,&haf:
+	vpoke &h2013,&ha1:
+	vpoke &h2014,&ha9:
+	vpoke &h2015,&ha6:
+	vpoke &h2016,&ha2:
+	vpoke &h2017,&ha2
+
+	## Snake head shape
+	vpoke &h10,60:
+	vpoke &h11,126:
+	vpoke &h12,219:
+	vpoke &h13,219:
+	vpoke &h14,129:
+	vpoke &h15,195:
+	vpoke &h16,126:
+	vpoke &h17,60:
+	## Color
+	vpoke &h20c0,&ha2:
+	vpoke &h20c1,&ha2:
+	vpoke &h20c2,&hab:
+	vpoke &h20c3,&hab:
+	vpoke &h20c4,&hab:
+	vpoke &h20c5,&hab:
+	vpoke &h20c6,&ha2:
+	vpoke &h20c7,&ha2
+
+	## Grass clear
+	for f=0 to 63:
+		vpoke &h640+f,0:
+		vpoke &h2640+f,&h22:
+	next
+
+	#1
+	## a$=inkey$ :if a$=" " then end else if a$<>e$ then {@}
+	## cls
+	#1
+
+return
+
+{error}
+	if err = 53 then _
+		er = 1:
+		resume {noFile}
+	on error goto 0
+	print " (";right$(str$(err),len(str$(err))-1);") at"; erl;
+end
+
+## Font data
+data 120,252,204,204,204,252,120,0,112,240,240,48,48,252,252,0_
+	,120,252,204,28,56,252,252,0,120,252,204,24,204,252,120,0_
+	,60,124,236,204,252,252,12,0,252,252,248,252,28,252,248,0_
+	,124,252,240,252,204,252,120,0,252,252,204,28,56,48,48,0
+data 120,252,204,120,204,252,120,0,120,252,204,252,60,252,248,0_
+	,0,48,48,0,48,48,0,0,24,60,60,24,24,0,24,0,0,24,12,190,12,24,0,0
+data 216,219,248,251,219,219,219,0,120,252,204,252,252,204,204,0_
+	,248,252,204,248,204,252,248,0,120,252,204,192,204,252,120,0_
+	,248,252,204,204,204,252,248,0,252,252,192,240,192,252,252,0_
+	,252,252,192,248,248,192,192,0,120,252,192,220,204,252,120,0
+data 204,204,252,252,204,204,204,0,120,120,48,48,48,120,120,0_
+	,12,12,12,12,204,252,120,0,204,220,248,240,248,220,204,0_
+	,192,192,192,192,192,252,252,0,132,204,252,252,204,204,204,0_
+	,204,204,236,252,220,204,204,0,120,252,204,204,204,252,120,0
+data 248,252,204,252,248,192,192,0,120,252,204,204,220,248,124,0_
+	,248,252,204,252,248,216,204,0,120,252,224,120,28,252,120,0_
+	,252,252,48,48,48,48,48,0,204,204,204,204,204,252,120,0_
+	,204,204,204,204,120,120,48,0,204,204,204,252,252,204,132,0
+data 204,204,120,48,120,204,204,0,204,204,252,120,48,48,48,0_
+	,252,252,28,56,112,252,252,0
