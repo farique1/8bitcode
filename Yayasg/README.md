@@ -1,3 +1,4 @@
+
 # Yayasg!  
 **Yet Another Yet Another Snake Game!**  
 **`MSX`  `CoCo`**  
@@ -16,7 +17,7 @@ The **MSX** versions are basically the same with changes only on the graphic rou
   
 You control the game with the `cursor keys` and `enter` and you can, at the start, set the speed and amount of worms.  
   
-The **Screen 1** version is `Yayasg.bas` and the **Screen 1.5** is `YayasgFC.BAS`.  
+The **Screen 1** version is `Yayasg.bas` and the **Screen 1.5** is `YayasgFC.bas`.  
   
 Normal and Screen 1.5 versions  
 SCREENSHOT_NORMAL -  SCREENSHOT_HIGH_COLOR  
@@ -26,6 +27,8 @@ SCREENSHOT_NORMAL -  SCREENSHOT_HIGH_COLOR
 The **CoCo** versions are two different beasts but they share the same structure. Both versions read the playfield pre built from the disk but if it is not found, the program will ask to redraw the screen from the scratch.  
   
 You control the game with the `cursor keys` and `enter` and you can, at the start, set the speed and amount of worms.  
+  
+The **normal** version is `Yayasg.bas` and the **Semigraphics 24** is `YayasgSG.bas`.  
   
 Normal and Semigraphics 24 versions  
 SCREENSHOT_NORMAL - SCREENSHOT_SEMIGRAPHICS  

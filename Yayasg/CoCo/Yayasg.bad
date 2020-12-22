@@ -1,0 +1,216 @@
+##BB:override_config=/Users/Farique/Desktop/8Bit Stuff/CoCoTemp/CodeStuff/Yayasg/xroarYayasgDisk.conf
+##BB:arguments=-rh
+
+' YAYASG - Yet Another Yet Anoter Snake Game
+' Copyright (C) 2020 - Fred Rique (farique)
+' https://github.com/farique1/8bitcode
+' Converted with CoCo Basic Dignified
+' https://github.com/farique1/CoCo-basic-dignified
+
+## Initialize
+define [pause][for f=1 to[10]:next]
+define [key][if inkey$<>[e$]then {@}]
+
+~hasSCR=True
+
+cls:
+?@&H2c,"YAYASG!"
+?@&Hc1,"DO YOU HAVE THE WORLD ON DISK?"
+?@&H101,"n  TO CREATE A BRAND NEW WORLD"
+
+a$=inkey$:if a$=""then{@}
+if a$="N" or a$="n" then hasSCR=False
+
+cls
+poke &hffd7,0:	## High speed poke
+
+gosub {variables}:
+gosub {screen}:
+gosub {config}:
+gosub {bait}:
+
+?@0,"SIZE:1   TIME:0   H S:1   T:0  "
+
+{restart}
+timer=0
+
+## Main Loop
+mainLoop{
+	a$=inkey$
+	if a$=r$ then d=&h1
+	if a$=l$ then d=-&h1
+	if a$=u$ then d=-&h20
+	if a$=d$ then d=&h20
+
+	?@p,"*";: ## Tail
+	p+=d:
+	c(p-d)=p:
+	a=peek(p+&h400):
+	?@p,"O";: ## Head
+
+	## On the grass
+	if a=&h20 or a=&h2d then _
+		poke e+&h400,a:
+		e=c(e):
+		[pause]i:
+		goto {mainLoop}
+
+	## Hit the wall
+	if a<>&h0 then {end}
+
+	## Ate a worm
+	l=g(rnd(&h186)):
+		if peek(l)<>&h20 and peek(l)<>&h2d then {@}
+	s+=&h1:
+	i=int((&h64/(s+&h3))+v):
+	poke l,&h0
+}
+
+## Ending
+{end}
+	t=int(timer/60):
+	poke p+&h400,a:
+	ss=len(str$(s))-1:
+	?@5,"    ";:
+	?@5,right$(str$(s),ss);:
+	st=len(str$(t))-1:
+	?@14,"    ";:
+	?@14,right$(str$(t),st);
+
+	[key]
+
+	if s>ms then _
+		ms=s:
+		mt=t:
+		?@22,"    ";:
+		?@22,right$(str$(ms),ss);:
+		?@28,"    ";:
+		?@28,right$(str$(mt),st);
+	np=e:
+	for f=&h0 to s-&h1:
+		if rnd(&ha)=&h1 then a=&h2d else a=&h20
+		poke np+&h400,a
+		np=c(np):
+	next:
+	p=&h145:
+	e=&h145:
+	d=&h1:
+	s=&h1:
+	i=int((&h64/(s+&h3))+v):
+goto {restart}
+
+## initializing Routines
+{config}
+	for i=20 to 0 step -1:
+		[pause]10:
+		?@i,"Y A Y A S G ";:
+	next:
+	?@0,"YAYASG     ":
+	for i=30 to 6 step -1:
+		[pause]10:
+		?@i,"! ";:
+	next
+
+	cu=11:
+	?@cu,">";:
+	?@12,"START";:
+	?@19,sp$(cs);:
+	?@26,ba$(cb);
+
+	menu{
+		a$=inkey$
+		if a$=l$ and cu>12 then _
+			?@cu," ";:
+			cu-=7:
+			?@cu,">";
+		if a$=r$ and cu<25 then _
+			?@cu," ";:
+			cu+=7:
+			?@cu,">";
+		if a$=e$ and cu=11 then _
+			?@0,string$(32," ");:
+			return
+		if a$=e$ and cu=18 then _
+			cs++:
+			cs = .mod(cs,2):
+			?@19,sp$(cs);:
+			v=sp(cs):
+			i=int((&h64/(s+3))+v)
+		if a$=e$ and cu=25 then _
+			cb++:
+			cb = .mod(cb,3):
+			?@26,ba$(cb);
+	}
+
+func .mod(nu,di)
+	if nu>di-1 then nu=0
+return nu
+
+{variables}
+	r$=chr$(9):l$=chr$(8):
+	u$=chr$(94):d$=chr$(10):
+	e$=chr$(&hd):
+	p=&h145:
+	e=&h145:
+	d=&h1:
+	s=&h1:
+	ms=&h0:
+	mt=&h0
+	dim c(&h300):
+	dim g(&h276):
+	dim sp$(2),sp(2),ba$(3),ba(3):
+	sp$(0)="FAST":sp$(1)="SLOW":
+	sp(0)=0:sp(1)=30:
+	ba$(0)="HUNGRY":ba$(1)="PLENTY":ba$(2)="FIESTA":
+	ba(0)=1:ba(1)=4:ba(2)=10:
+	cs=0:cb=1:
+	v=sp(cs):
+	i=int((&h64/(s+3))+v):
+return
+
+{bait}
+	?@8+0*32,"TEASING THE WORMS";:
+	c=&h0:
+	for y=&h0 to &h190 step &h20:
+		for x=&h441 to &h45e:
+			g(c)=x+y:
+			c++:
+		next:
+	next
+	for f=&h1 to ba(cb)
+		l=g(rnd(&h186)):if peek(l)<>&h20 then {@}
+		poke l,&h0:
+	next:
+return
+
+{screen}
+	if hasSCR then _
+		loadm "YAYASG.SCR": return
+	## Playfield
+	## Wall
+	?@7+6*32,"BUILDING THE WALLS";:
+	for f=0 to 31 step 2:
+		poke &h420+f,&hff:
+		poke &h421+f,&hbf:
+		poke &h5e0+f,&hff:
+		poke &h5e1+f,&hbf:
+	next
+	## ?@32,string$(32,chr$(&hff)):
+	for f=&h440 to &h5c0 step &h40:
+		poke f,&hbf:
+		poke f+&h20,&hff:
+		poke f+&h1f,&hff:
+		poke f+&h3f,&hbf:
+	next:
+	## Grass and
+	## Precompute screen positions
+	?@7+8*32,"PLANTING THE GRASS";:
+	for y=&h0 to &h190 step &h20:
+		for x=&h441 to &h45e:
+			if rnd(&ha)=&h1 then a=&h2d else a=&h20
+			poke x+y,a:
+		next:
+	next:
+	## savem "YAYASG.SCR",&h400,&h5ff,&h400:screen 0:end ## uncomment to save the world
+return
+

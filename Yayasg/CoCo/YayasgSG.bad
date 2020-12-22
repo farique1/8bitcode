@@ -1,0 +1,428 @@
+##BB:override_config=/Users/Farique/Desktop/8Bit Stuff/CoCoTemp/CodeStuff/Yayasg/xroarYayasgSGDisk.conf
+##BB:arguments=-rh
+
+' YAYASG! - Yet Another Yet Anoter Snake Game!
+' Semigraphics 24 version
+' Copyright (C) 2020 - Fred Rique (farique)
+' https://github.com/farique1/8bitcode
+' Converted with CoCo Basic Dignified
+' https://github.com/farique1/coco-basic-dignified
+
+## Initialize
+define [delay][for f=1 to[10]:next]
+define [key][if inkey$<>[e$]then {@}]
+define [pset][poke&hb2,fnb([&h60])]
+
+## convert line/pcls poke paterns
+def fnb(c)=((255-c)*3+3-(256*(2-int(c/85.5))))*int((c/255)+0.99609)
+
+~baseMem=&he00  ## define the base screen memory (&he00 avoids disk basic)
+~hasSCR=True	## has .scr file on disk?
+
+cls:
+?@&H2c,"YAYASG!"
+?@&Hc1,"DO YOU HAVE THE WORLD ON DISK?"
+?@&H101,"n  TO CREATE A BRAND NEW WORLD"
+
+a$=inkey$:if a$=""then{@}
+if a$="N" or a$="n" then hasSCR=False
+
+pmode 3,1		## Prime graphic addresses
+poke &hffd7,0	## High speed poke
+
+## Semigraphics
+a=peek (&hff22): poke &hff22,(a and &h7):
+poke &hffc5,1 :poke &hffc3,1 :poke &hffc0,0
+
+## Relocate vídeo display area? re/512 must be int
+re=baseMem:b=re/&h200:a=1:for i=&hFFC6 to &hFFD2 step 2:poke i-((b and a)=a),0:a=a*2:next
+
+poke&hba,baseMem/&h100:	## high byte of the graph page address, bring it to the text page
+poke&h167,&h39			## Keep screen 0,1 even with PRINT
+
+## clear screen with character
+poke &hb3,fnb(&h60)	## set it
+pcls  				## clear
+
+.variables()
+if hasSCR _
+	then .loadScreen():.getChars() _
+	else .createChars():.getChars():.createScreen()
+.config():
+.bait()
+
+t$="SIZE:1   TIME:0     S:1   T:0   "
+.scoreText(-1,t$)
+.makeHi(18)
+
+{restart}
+
+timer=0
+mainLoop{
+	a$=inkey$
+	if a$=r$ then k=8:j=0
+	if a$=l$ then k=-8:j=0
+	if a$=u$ then j=-&hc:k=0
+	if a$=d$ then j=&hc:k=0
+	put(x,y)-(x,y+11),st:
+	x+=k:y+=j:
+	a=ppoint(x+6,y+6):
+	c=c+1:if c>&h400 then {tired}
+	m(c)=x:n(c)=y:
+	## on the grass
+	if a<>1 then {notGrass}
+	put(x,y)-(x,y+11),sh:
+	u=m(c-s):w=n(c-s):
+	b=rnd(5):
+	if b=1 _
+		then put(u,w)-(u,w+11),v1 _
+		else put(u,w)-(u,w+11),bk
+	[delay]i:				## delay movement
+	goto {mainLoop}
+	{notGrass}
+	## hit a wall
+	if a=4 then {end}
+	## ate a worm
+	g=rnd(30)*8+8:
+	h=rnd(13)*12+24:
+	if ppoint(g+6,h+6)<>1 then{@}
+	s=s+1:
+	i=int((&h64/(s+&h3))+v):
+	b=rnd(4):
+		if b=1 then put(g,h)-(g,h+11),w1 else _
+		if b=2 then put(g,h)-(g,h+11),w2 else _
+		if b=3 then put(g,h)-(g,h+11),w3 else _
+		if b=4 then put(g,h)-(g,h+11),w4
+}
+
+{tired}
+	get(0,0)-(255,11),ya
+	[pset]&h60:line(0,0)-(255,11),pset,bf
+	t$="SORRY GOT TIRED"
+	.generalText(&h8,t$,1)
+	## refresh the movement matrix by bringging
+	## the movement data from the end to the beginning
+	## this is not working
+	## ff=0
+	## for f=c-s to c
+	## 	m(ff)=f:n(ff)=f
+	## 	ff++
+	## next
+	## c=s
+	timer=0
+	a$=inkey$:if a$<>e$ and timer<100 then{@}
+	put(0,0)-(255,11),ya
+
+## Ending
+{end}
+	ti=int(timer/60)
+	t$="    "
+	.scoreText(4,t$)
+	ss=len(str$(s))-1
+	t$=right$(str$(s),ss)
+	.scoreText(4,t$)
+	t$="    "
+	.scoreText(13,t$)
+	st=len(str$(ti))-1
+	t$=right$(str$(ti),st)
+	.scoreText(13,t$)
+
+	[key]
+
+	if s>ms then _
+		ms=s:
+		mt=ti:
+		t$="    ":
+		.scoreText(21,t$):
+		t$=right$(str$(ms),ss):
+		.scoreText(21,t$):
+		t$="    ":
+		.scoreText(27,t$):
+		t$=right$(str$(mt),st):
+		.scoreText(27,t$)
+
+	for f=c-s to c-1
+		u=m(f):w=n(f)
+		a=rnd(5)
+		if a=1 _
+			then put(u,w)-(u,w+11),v1 _
+			else put(u,w)-(u,w+11),bk
+	next
+
+	x=32:y=96
+	k=8:j=0
+	u=24:w=96
+	m(0)=24:n(0)=96
+	m(1)=32:n(1)=96
+	c=1
+	s=&h1:
+	i=int((&h64/(s+&h3))+v):
+goto {restart}
+
+## initializing Routines
+func .config()
+	for f=256 to 0 step -8
+		put(f,0)-(f+47,11),ya
+	next
+	for f=256 to 48 step -8
+		put(f,0)-(f+15,11),ye
+	next
+
+	cu=11:
+	bk$=" "
+	.generalText(11,"START",1)
+	.generalText(18,sp$(cs),1)
+	.generalText(25,ba$(cb),1)
+	.makeArrow(cu)
+
+	menu{
+		a$=inkey$
+		if a$=l$ and cu>12 then _
+			.makeVoid(cu):
+			cu-=7:
+			.makeArrow(cu)
+		if a$=r$ and cu<25 then _
+			.makeVoid(cu):
+			cu+=7:
+			.makeArrow(cu)
+		if a$=e$ and cu=11 then _
+			[pset]&h60:line(0,0)-(255,11),pset,bf:return
+		if a$=e$ and cu=18 then _
+			cs++:
+			cs=.mod(cs,2):
+			.generalText(18,sp$(cs),1)
+			v=sp(cs):
+			i=int((&h64/(s+3))+v)
+		if a$=e$ and cu=25 then _
+			cb++:
+			cb=.mod(cb,3):
+			.generalText(25,ba$(cb),1)
+	}
+return
+
+func .mod(nu,di)
+	if nu>di-1 then nu=0
+return nu
+
+func .variables()
+	r$=chr$(9):l$=chr$(8)
+	u$=chr$(94):d$=chr$(10)
+	e$=chr$(&hd)
+	x=32:y=96
+	k=8:j=0
+	u=24:w=96
+	c=1
+	s=&h1
+	ms=&h0
+	mt=&h0
+	cs=0:cb=1
+	i=int((&h64/(s+3))+v)
+	## dim=glyphs art height
+	dim aw(5),hi(5),w1(8),w2(8),w3(8),w4(8),sh(7)
+	dim st(7),bk(7),m1(12),m2(12),m3(12)
+	dim v1(3),ya(&h100),ye(16)
+	## stores x,y positions to erase the tail
+	dim m(&h400)
+	dim n(&h400)
+	m(0)=24:n(0)=96
+	m(1)=32:n(1)=96
+	dim sp$(2),sp(2),ba$(3),ba(3)
+	sp$(0)="SLOW":sp$(1)="SLUG"
+	sp(0)=0:sp(1)=30				## initial speed
+	ba$(0)="HUNGRY":ba$(1)="PLENTY":ba$(2)="FIESTA"
+	ba(0)=1:ba(1)=4:ba(2)=10
+	v=sp(cs)
+	## arrow, hi and space
+	for f=0 to 4:read a$:aw(f)=val("&H"+a$):next
+	for f=0 to 4:read a$:hi(f)=val("&H"+a$):next
+return
+
+func .bait()
+	for f=&h1 to ba(cb)
+		xx=rnd(30)*8:
+		yy=rnd(13)*12+12:
+		if ppoint(xx+6,yy+6)<>1 then {@}
+		a=rnd(4)
+		if a=1 then put(xx,yy)-(xx,yy+11),w1 else _
+		if a=2 then put(xx,yy)-(xx,yy+11),w2 else _
+		if a=3 then put(xx,yy)-(xx,yy+11),w3 else _
+		if a=4 then put(xx,yy)-(xx,yy+11),w4
+	next
+return
+
+func .loadScreen()
+	if hasSCR then _
+		loadm "YAYASGSG.SCR": return
+return
+
+func .createScreen()
+	## Playfield
+	## Wall
+	t$="BUILDING THE WALLS":
+	.generalText(6+8*&h180,t$,1)
+	for f=0 to 255 step 16:
+		put(f,12)-(f,23),m1:
+		put(f+8,12)-(f+8,23),m2:
+
+		put(f,180)-(f,191),m1:
+		put(f+8,180)-(f+8,191),m2:
+	next
+	for f=24 to 168 step 8:
+		put(0,f)-(0,f+11),m3:
+		put(248,f)-(248,f+11),m3:
+	next
+	## Grass and
+	## Precompute screen positions
+	t$="PLANTING THE GRASS":
+	.generalText(6+10*&h180,t$,1)
+	for yy=24 to 178 step 12
+		line(9,yy)-(247,yy+11),pset,bf
+		for xx=8 to 247 step 8
+			a=rnd(5)
+			if a=1 then put(xx,yy)-(xx,yy+11),v1 _
+			else put(xx,yy)-(xx,yy+11),bk
+		next
+	next
+	savem "YAYASGSG.SCR",&he00,&h2600,&he00:screen 0:end ## uncomment to save the world
+return
+
+func .createChars()
+	t$="CREATING THE WORLD":
+	.generalText(6+6*&h180,t$,1)
+
+	[pset]&h20:line(0,0)-(87,11),pset,bf
+	## glyphs
+	## worms
+		## body
+	for f=0 to 6:
+		read a$:a=val("&H"+a$):
+		w1(f)=a:w2(f)=a:w3(f)=a:w4(f)=a:
+	next
+		## ground
+	read a$:w1(7)=val("&H"+a$):
+	read a$:w2(7)=val("&H"+a$):
+	read a$:w3(7)=val("&H"+a$):
+	read a$:w4(7)=val("&H"+a$)
+	## snake head and tail
+	for f=0 to 6:read a$:sh(f)=val("&H"+a$):next
+	for f=0 to 6:read a$:st(f)=val("&H"+a$):next
+	## walls (muros)
+	for f=0 to 11:read a$:m1(f)=val("&H"+a$):next
+	for f=0 to 11:read a$:m2(f)=val("&H"+a$):next
+	for f=0 to 11:read a$:m3(f)=val("&H"+a$):next
+	## vegetation
+	read a:v1(0)=a:read a$:v1(1)=val("&H"+a$):read a$:v1(2)=val("&H"+a$)
+
+	## display
+	## worms
+	l=&he00:for f=3 to 10:poke l+f*&h20,w1(f-3):next
+	l=&he01:for f=3 to 10:poke l+f*&h20,w2(f-3):next
+	l=&he02:for f=3 to 10:poke l+f*&h20,w3(f-3):next
+	l=&he03:for f=3 to 10:poke l+f*&h20,w4(f-3):next
+	## snake
+	l=&he04:for f=3 to 9:poke l+f*&h20,sh(f-3):next
+	l=&he05:for f=3 to 9:poke l+f*&h20,st(f-3):next
+	## walls
+	l=&he07:for f=0 to 11:poke l+f*&h20,m1(f):next
+	l=&he08:for f=0 to 11:poke l+f*&h20,m2(f):next
+	l=&he09:for f=0 to 11:poke l+f*&h20,m3(f):next
+	## vegetation
+	l=&he0a:f=v1(0):poke l+(f)*&h20,v1(1):poke l+(f+1)*&h20,v1(2)
+
+	t$="YAYASG!"
+	.generalText(&ha,t$,1)
+return
+
+func .getChars()
+	## get
+	get(0,0)-(0,11),w1
+	get(8,0)-(8,11),w2
+	get(16,0)-(16,11),w3
+	get(24,0)-(24,11),w4
+	get(32,0)-(32,11),sh
+	get(40,0)-(40,11),st
+	get(48,0)-(48,11),bk
+	get(56,0)-(56,11),m1
+	get(64,0)-(64,11),m2
+	get(72,0)-(72,11),m3
+	get(80,0)-(80,11),v1
+	get(88,0)-(135,11),ya
+	get(136,0)-(151,11),ye
+return
+
+func .generalText(l,t$,i=0)
+	## pos-1,text string,type (0=inverted)
+	for f=1 to len(t$):
+		t=asc(mid$(t$,f,1)):
+		if i=1 then if t=&h20 then t=&h60 
+		if i=1 then if (t>&h20 and t<&h40) then t+=&h40
+		if i=0 then if (t>&h40 and t<&h5b) then t-=&h40
+		poke baseMem+l+f+&h60,t:
+		poke baseMem+l+f+&h80,t:
+		poke baseMem+l+f+&ha0,t:
+		poke baseMem+l+f+&hc0,t:
+		poke baseMem+l+f+&he0,t:
+		poke baseMem+l+f+&h100,t:
+		poke baseMem+l+f+&h120,t:
+	next
+return
+
+func .scoreText(l,t$)
+	for f=1 to len(t$)
+		t=asc(mid$(t$,f,1))
+		cl=&haf:t=t+&h40
+		if t>&h6f and t<&h7a then cl=&hef
+		if t>&h81 and t<&ha4 then t=t-&h40
+		poke baseMem+l+f+&h00,128
+		poke baseMem+l+f+&h20,cl
+		poke baseMem+l+f+&h60,t
+		poke baseMem+l+f+&h80,t
+		poke baseMem+l+f+&ha0,t
+		poke baseMem+l+f+&hc0,t
+		poke baseMem+l+f+&he0,t
+		poke baseMem+l+f+&h100,t
+		poke baseMem+l+f+&h120,t
+		poke baseMem+l+f+&h160,cl
+	next
+return
+
+## make a custom character
+func .makeChar(l,c$)
+	for f=1 to 7
+		poke baseMem+l+&he0+(f*&h20),asc(mid$(c$,f,1))
+	next
+return
+
+## make a right facing arrow
+func .makeArrow(l)
+	l+=&he80
+	for f=0 to 4
+		poke l+f*&h20,aw(f)
+	next
+return
+
+func .makeHi(l)
+	l+=&he60
+	for f=0 to 4
+		poke l+f*&h20,hi(f)
+	next
+return
+
+func .makeVoid(l)
+	l+=&he80
+	for f=0 to 4
+		poke l+f*&h20,&h60
+	next
+return
+
+## characters
+data 7E,7E,6D,7E,7E  ## arrow
+data 5C,65,4B,4D,57  ## hi
+data 30,30,30,32,33,34,32  ## worm body
+data 9F,BF,DF,FF  ## worm gound
+data 36,38,23,34,20,36,36  ## snake head
+data 28,23,23,2B,23,23,28  ## snake tail
+data CF,BF,FF,BF,CF,FF,FF,BF,CF,FF,FF,BF	## wall 1
+data CF,BF,CF,FF,FF,BF,CF,FF,FF,BF,CF,BF	## wall 2
+data FF,BF,CF,FF,FF,BF,CF,FF,FF,BF,CF,FF	## wall 3
+data 5,18,18  ## vegetation. y pos,char,char
