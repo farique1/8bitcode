@@ -1,0 +1,223 @@
+##BB:arguments=-tr
+
+' MASCIISDRAWX
+' (C) Fred Rique (farique) 2020
+' github/farique1/8bitcode
+
+clear 100,&hafff:
+defint a-z:
+
+## Declare long name variables
+declare currFile:cf,reqType:rq,basCom:bc
+declare fileExt:fx,fileName:fa,flags:fg
+declare moreFiles:mf,logo:lo
+
+' ml addresses, always check
+define [begin][&hb000]			## ml program begin
+define [bascm][&hb007]			## comms between bas and asm
+define [flags][&hb008]			## ml flags byte
+define [swscr][&hb00a]			## show drawing routine hook
+define [retrn][&hb00d]			## ml program return address
+
+define [spcs][string$([1]," ")] ## spc() doesn't work w IF
+
+defusr1=[retrn]:				## return to program
+defusr2=[swscr]:				## display drawing for saving
+
+v=&h1803:						## base address for VRAM screen
+l=0:							## requester vertical location
+p=0:							## screen memory location
+
+u$=chr$(&h1e):r$=chr$(&h1c):	## up right
+d$=chr$(&h1f):l$=chr$(&h1d):	## down left
+e$=chr$(&h0d):s$=chr$(&h20):	## enter space
+z$=chr$(&h1b):k$="D":x$="E":	## esc
+
+logo$=chr$(&h80)+chr$(&h81)+ _	## logo
+	chr$(&h82)+chr$(&h83)+ _
+	chr$(&h84)+chr$(&h85)+ _
+	chr$(&h86)+chr$(&h87)
+
+currFile$="":
+fileExt$=".scr" ' leave blank to list all files
+fileName$="" ' insert a file name to auto load
+if fileExt$="" then fileExt$=".*"
+
+screen 1:width 32:key off:color 15,14,14:
+poke &hfcab,&hff				## force caps lock
+
+bload "masciisd.scr",s
+a$=inkey$:if a$=""then{@}
+
+if fileName$<>"" then _ 		## load file automatically
+	bload fileName$,s:
+	.runASCDRW(True):
+	.resetQuitFlag():
+	goto {main}
+
+bload "masciisd.bin",r:
+.resetQuitFlag()
+
+main{
+	basCom=peek([bascm])		## get communication byte
+	if basCom=&h01 then _		## basCom 1 = load
+		.loadFile():
+		.runASCDRW()
+	if basCom=&h00 then _		## basCom 0 = save
+		.saveFile():
+		.runASCDRW(True)
+	if basCom=&hff then _		## basCom ff = quit
+		end
+}
+
+## run MASCIISDRAWX
+func .runASCDRW(r=False)
+	' r=reload MASCIISDRAWX
+	' (BSAVE,S is ERASING the program from memory)
+	' will restore the default colors
+	if r and fileName$<>"" then _
+		poke [flags],flags:
+		bload "masciisd.bin"
+	a=usr1(0):
+	.resetQuitFlag():
+return
+
+## load a drawing
+func .loadFile()
+	.requester("load"):
+	width 32:
+	## only if name given
+	if fileName$<>"" then _	
+		currFile$=fileName$:
+		bload fileName$,s
+return
+
+## save a drawing
+func .saveFile()
+	.requester("save"):
+	width 32:
+	a=usr2(0):
+	## only if name given
+	if fileName$<>"" then _	
+		currFile$=fileName$:
+		bsave fileName$,&h0,&h2020,s
+return
+
+## reset the quit flag so MASCIISDRAWX can run
+func .resetQuitFlag()
+	flags=peek([flags]):
+	flags=flags and &b01111111:
+	poke [flags],flags:
+return
+
+## create a file requester
+func .requester(reqType$)
+	cls:
+	width 26:
+	locate 0,2:
+	files "*"+fileExt$:
+
+	## search for the end row of the file list
+	for f=2 to 24:
+		p=v+13+32*f:
+		if chr$(vpeek(p))=" " then l=f+2:f=24
+	next
+	## adjust the row if odd number of files
+	if chr$(vpeek(v+0+32*(l-2)))<>" " _
+		then ? else l--
+
+	?:? reqType$;":":
+	? "WORK:";currFile$:
+
+	## print ^ if more files scrolled past
+	moreFiles=vpeek(v):
+	[?@]0,0 [spcs]9 ;logo$;[spcs]8 ;:
+	[?@]0,1 string$(25," ");:
+	if moreFiles<>32 then _
+		[?@]0,0 "^":[?@]24,0 "^":
+		l=21
+
+	## initial positions
+	x=12:y=2:
+	p=v+x+32*y
+
+	## check for keys
+	keys{
+		[?@]x,y "{"
+		a$=inkey$:if a$="" then {@}
+		[?@]x,y " ":
+		px=x:py=y
+		if a$=r$ then x+=13:if x>=31 then x=12
+		if a$=l$ then x-=13:if x<= 0 then x=25
+		if a$=u$ then y--:if y<= 0 then y=0
+		if a$=d$ then y++:if y>=24 then y=24
+		if a$=e$ then .showCont():return
+		if a$=s$ then .typeName():return
+		if a$=x$ then .extension()
+		if a$=k$ then .delete()
+		if a$=z$ then _
+			poke [bascm],&h20:fileName$="":return
+		p=v+x+32*y:
+		if vpeek(p-12)=32 then x=px:y=py:p=v+x+32*y
+	}
+return
+
+## select a filename and run if ENTER a second time
+func .showCont()
+	locate 5,l:
+	for f=p-12 to p-1:
+		?chr$(vpeek(f));:
+	next
+	a$=inkey$:if a$=""then{@}
+	if a$=s$ then .typeName():return
+	if a$<>e$ then _
+		locate 5,l:
+		? [spcs]12:return {keys}
+	fileName$=.getFile(11):
+return
+
+## type a file name
+func .typeName()
+	locate 5,l:
+	line input fileName$:
+	fileName$=.getFile(11):
+	if fileName$=[spcs]12 _
+		then return {keys}
+return
+
+## change the extension to list
+func .extension()
+	[?@]0,l "ext :":
+	locate 5,l:
+	line input fileName$:
+	fileName$=.getFile(4):
+	[?@]0,l reqType$;":";[spcs]12 :
+	if fileName$=[spcs]5 then return _
+		else fileExt$=fileName$:
+		if left$(fileExt$,1)<>"." then _
+			fileExt$="."+fileExt$:return {requester} 
+return
+
+## delete a file
+func .delete()
+	[?@]0,l "del :":
+	locate 5,l:
+	line input fileName$:
+	fileName$=.getFile(11):
+	if fileName$=[spcs]12 then _
+		[?@]0,l reqType$;":";[spcs]12 :return
+	[?@]20,l "sure?";
+	a$=inkey$:if a$=""then{@}
+	if a$=e$ or a$="Y" then _
+		kill fileName$:return {requester}
+	[?@]0,l reqType$;":";[spcs]20 :
+return
+
+## get the selected filename
+func .getFile(w)
+	fileName$="":
+	p=v+5+32*l:
+	for f=p to p+w:
+		fileName$+=chr$(vpeek(f)):
+	next:
+return fileName$

@@ -1,8 +1,7 @@
 ; ------------------MASCIISDRAWX
 ;	MASCIISDRAWX
 ;	(C) Fred Rique (farique) 2020
-;	github/farique1/8bitcodes
-;	/Users/Farique/Desktop/Projects/Assembly/Z80/zasm/zasm -uwy ascdrw.asm ascdrw.bin
+;	github.com/farique1/8bitcode
 ; ------------------------
 
 ; ------------------DOCS
