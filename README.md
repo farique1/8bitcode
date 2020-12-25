@@ -21,7 +21,7 @@ I always bragged that I knew **Assembly** but I've never coded anything more tha
   
 The **elusive** and criminally underused **Semigraphics** modes on the **CoCo** always fascinated me. I had as given that you needed **Assembly** to access them but when I studied a little more and found out that they were **perfectly accessible** and usable in **Basic** this little exploration program came out.  
   
-## [Change Graph Kit](https://github.com/farique1/8bitcode/tree/main/Change-Graph-Kit)  
+## [Change Graph Kit](https://github.com/farique1/Change-Graph-Kit)  
 **Edit game graphics**  
 **`MSX`**  
   

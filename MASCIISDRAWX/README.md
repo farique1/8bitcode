@@ -15,8 +15,9 @@ Designing a screen character by character is not an easy task so  **MASCIISDRAWX
   
 **MASCIISDRAWX** was the first Assembly program I ever made and every single line is commented. So apart from the fact it could probably have half the size and double the speed I imagine it is a nice program to go through if you are learning. Not a lot of fancy techinics, instead, a simple, easy to follow code that works as it should.  
   
-SCREEENSHOT_OF_CHARACTER_EDITING_SCREEN  
-VIDEO_OF_CGK_EDITING  
+Creating its Title Screen|Redesigning CGK  
+:-------------------------:|:-------------------------:  
+[![Creating its Title Screen](Images/MASCIISDRAWXTitle.png)](https://youtu.be/pQ4a8NXHRC4)  |  [![Redesigning CGK](Images/MASCIISDRAWXCGK.png)](https://youtu.be/v_vkla5z6Xs)  
   
 **Keys and mouse controls:**  
   
