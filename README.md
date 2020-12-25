@@ -21,11 +21,17 @@ I always bragged that I knew **Assembly** but I've never coded anything more tha
   
 The **elusive** and criminally underused **Semigraphics** modes on the **CoCo** always fascinated me. I had as given that you needed **Assembly** to access them but when I studied a little more and found out that they were **perfectly accessible** and usable in **Basic** this little exploration program came out.  
   
-## [Change Graph Kit](temp)  
+## [Change Graph Kit](https://github.com/farique1/8bitcode/tree/main/Change-Graph-Kit)  
 **Edit game graphics**  
 **`MSX`**  
   
 Back in the olden days I managed to **edit** the **graphics** on **commercial MSX games** by the way of three very small **Basic** programs that could live in memory along them, one at a time, without conflict. They worked but the whole thing was a mess. Recently I decided to know **how far** I could go **remaking** it. It also served as a tool to **test** and **debug** my **[Basic Dignified](https://github.com/farique1/msx-basic-dignified)** and **[Sublime Tools](https://github.com/farique1/MSX-Sublime-Tools)** projects.  
+
+--------  
+###### Acknowledgments  
+  
+Most of the Basic programs were made using **[MSX Basic Dignified](https://github.com/farique1/msx-basic-dignified)** or **[CoCo Basic Dignified](https://github.com/farique1/coco-basic-dignified)** (`.bad`) and these are the commented version but there are of course `.asc` and `.bas` versions as well.
+There are `.dsk` and/or `.cas` files available on the **Releases** section for most of the programs.  
   
 --------  
 ###### References  

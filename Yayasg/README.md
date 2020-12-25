@@ -9,8 +9,6 @@ The best way to achieve a good performance while keeping the code readable is to
   
 On the **Semigraphics 24** **CoCo** version I had not one but two problems using this method. First, the screen address space is too big to mimic on an array in Basic (6144 bytes instead of the 512 on a conventional text screen). Second, the fastest method to put graphics on a Semigraphic screen in Basic is with `GET`/`PUT` (this speed was what make me think the whole thing was possible) and it not only do not work with memory addresses, using a `X` `Y` coordinate, but it is also too big (256x192) for an array. Both this things made me compromise on an array (two arrays in fact, to hold `X` and `Y` components) representing the snake as it grows. In this case, each position in the arrays represent the size of the snake and point to the next coordinate. The collision detection is made by directly `PPOINT`ing the screen, the worms random positions are easily calculable so they are done on the fly. This works and is somewhat fast but the snake has a maximum size (the arrays size). I intend to do a reset of the arrays when they reach the end on the guise of the snake resting for a little but for now it just tires and its game over.  
   
-The programs were made using **[Basic Dignified](https://github.com/farique1/msx-basic-dignified)** (`.bad`) and these are the commented version but there are of course `.asc` and `.bas` versions as well. There are `.dsk` files available on the **Releases** section.  
-  
 ## **`MSX`**  
   
 The **MSX** versions are basically the same with changes only on the graphic routines. Both versions read the playfield pre built from the disk but if it is not found, the program will ask to redraw the screen from the scratch.  
@@ -19,8 +17,9 @@ You control the game with the `cursor keys` and `enter` and you can, at the star
   
 The **Screen 1** version is `Yayasg.bas` and the **Screen 1.5** is `YayasgFC.bas`.  
   
-Normal and Screen 1.5 versions  
-SCREENSHOT_NORMAL -  SCREENSHOT_HIGH_COLOR  
+Yayasg! Screen 1|Yayasg! Screen 1.5
+:-------------------------:|:-------------------------:
+![](/Images/YayasgMSX.png)  |  ![](/Images/YayasgFCMSX.png)
   
 ## **`CoCo`**  
   
@@ -30,5 +29,6 @@ You control the game with the `cursor keys` and `enter` and you can, at the star
   
 The **normal** version is `Yayasg.bas` and the **Semigraphics 24** is `YayasgSG.bas`.  
   
-Normal and Semigraphics 24 versions  
-SCREENSHOT_NORMAL - SCREENSHOT_SEMIGRAPHICS  
+Yayasg! Text screen|Yayasg! Semigraphics 24
+:-------------------------:|:-------------------------:
+![](/Images/YayasgCoCo.png)  |  ![](/Images/YayasgSGCoCo.png)

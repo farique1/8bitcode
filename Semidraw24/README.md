@@ -10,8 +10,6 @@ It is useful to prototype and design interface elements of other semigraphics pr
   
 Because the Disk Basic routines are located right after the screen memory address and the semigraphics extends this area twelvefold, the conflict prevents **Semidraw24** from running on a Disk Basic **CoCo**. I already know how to circumvent this problem and a disk version is coming soon.  
   
-**Semidraw24** was made using **[Basic Dignified](https://github.com/farique1/msx-basic-dignified)** (`.bad`) and this is the commented version but there are of course `.asc` and `.bas` versions as well. There is a `.cas` file available on the **Releases** section.  
-  
 SCREEENSHOT_OF_INTRICATED_PATTERN_AND_ANIMATION_FRAMES  
   
 Yayasg! characters study:  
