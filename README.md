@@ -32,7 +32,6 @@ Back in the olden days I managed to **edit** the **graphics** on **commercial MS
   
 Most of the Basic programs were made using **[MSX Basic Dignified](https://github.com/farique1/msx-basic-dignified)** or **[CoCo Basic Dignified](https://github.com/farique1/coco-basic-dignified)** (`.bad`) and these are the commented version but there are of course `.asc` and `.bas` versions as well.
 There are `.dsk` and/or `.cas` files available on the **Releases** section for most of the programs.  
-  
---------  
+    
 ###### References  
->**[1]** Screen 1.5 is how I'm calling the Screen 1 hack to color the characters per pattern byte instead of blocks of 8 characters. Here I need to send ANOTHER thank you to [Giovanni Nunes](https://github.com/plainspooky) for pointing me in the right direction.  
+**[1]** Screen 1.5 is how I'm calling the Screen 1 hack to color the characters per pattern byte instead of blocks of 8 characters. Here I need to send ANOTHER thank you to [Giovanni Nunes](https://github.com/plainspooky) for pointing me in the right direction.  
