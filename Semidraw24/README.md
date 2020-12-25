@@ -10,12 +10,10 @@ It is useful to prototype and design interface elements of other semigraphics pr
   
 Because the Disk Basic routines are located right after the screen memory address and the semigraphics extends this area twelvefold, the conflict prevents **Semidraw24** from running on a Disk Basic **CoCo**. I already know how to circumvent this problem and a disk version is coming soon.  
   
-SCREEENSHOT_OF_INTRICATED_PATTERN_AND_ANIMATION_FRAMES  
+SG 24 Texture|Yayasg! Art Study  
+:-------------------------:|:-------------------------:  
+![SG 24 Texture](Images/Texture.png)  |  ![Yayasg! Art Study](Images/YayasgArt.png)  
   
-Yayasg! characters study:  
-YAYASG_CHARACTERS_SCREENSHOT  
-  
-
 **The keys to control **Semidraw24** are:**  
   
 	ARROWS 			- Move the cursor, hold for continuous movement  

@@ -17,9 +17,9 @@ You control the game with the `cursor keys` and `enter` and you can, at the star
   
 The **Screen 1** version is `Yayasg.bas` and the **Screen 1.5** is `YayasgFC.bas`.  
   
-Yayasg! Screen 1|Yayasg! Screen 1.5
-:-------------------------:|:-------------------------:
-![Yayasg! Screen 1](Images/YayasgMSX.png)  |  ![Yayasg! Screen 1.5](Images/YayasgFCMSX.png)
+Yayasg! Screen 1|Yayasg! Screen 1.5  
+:-------------------------:|:-------------------------:  
+![Yayasg! Screen 1](Images/YayasgMSX.png)  |  ![Yayasg! Screen 1.5](Images/YayasgFCMSX.png)  
   
 ## **`CoCo`**  
   
@@ -29,6 +29,6 @@ You control the game with the `cursor keys` and `enter` and you can, at the star
   
 The **normal** version is `Yayasg.bas` and the **Semigraphics 24** is `YayasgSG.bas`.  
   
-Yayasg! Text Screen|Yayasg! Semigraphics 24
-:-------------------------:|:-------------------------:
-![Yayasg! Text Screen](Images/YayasgCoCo.png)  |  ![Yayasg! Semigraphics 24](Images/YayasgSGCoCo.png)
+Yayasg! Text Screen|Yayasg! Semigraphics 24  
+:-------------------------:|:-------------------------:  
+![Yayasg! Text Screen](Images/YayasgCoCo.png)  |  ![Yayasg! Semigraphics 24](Images/YayasgSGCoCo.png)  
