@@ -6,7 +6,7 @@ The **elusive** and criminally underused **Semigraphics** modes on the **CoCo** 
   
 **Semidraw24** is a Basic paint program using the Semigraphics 24 mode of the **CoCo 2**. It does not have the classic *circle*, *box* or *lines* of traditional paint programs, being more driven toward the creation of patterns and characters with the mix and match capabilities of the semigraphics mode.  
 It also support a bit of animation. You can animate a character block by stating a sequence of character "frames" and a speed to go though.  
-It is useful to prototype and design interface elements of other semigraphics programs and was very handy when designing the characters of the semigraphics version of [Yayasg!](https://github.com/farique1/8bitcode/tree/main/Yayasg)  
+It is useful to prototype and design interface elements of other semigraphics programs and was very handy when designing the characters of the semigraphics version of **[Yayasg!](https://github.com/farique1/8bitcode/tree/main/Yayasg)**  
   
 Because the Disk Basic routines are located right after the screen memory address and the semigraphics extends this area twelvefold, the conflict prevents **Semidraw24** from running on a Disk Basic **CoCo**. I already know how to circumvent this problem and a disk version is coming soon.  
   
