@@ -3,15 +3,15 @@
 Screen 1.5<sup>[1](#references)</sup> coming soon.  
 **`MSX`**  
   
-I always bragged that I knew **Assembly** but I've never coded anything more than a few small **helper routines** for may **Basic** programs. No more. I decided to make a complete and "useful" program in Assembly to call my own. Also I wanted to explore the undocumented **Screen 1.5** mode on the **MSX** and do something nice with it.  
+I always bragged that I knew **Assembly** but I've never coded anything more than a few small **helper routines** for may **Basic** programs. No more. I decided to make a complete and "useful" program in Assembly to call my own. Also I wanted to explore the undocumented **Screen 1.5<sup>[1](#references)</sup>** mode on the **MSX** and do something nice with it.  
   
-It started wit a redesign of the [Change Graph Kit](temp) interface that I didn't want to do with Basic and `PRINT`ing, a slow, cumbersome and not intuitive way to do a redesign. Combine it with me stumbling on some pages about the Screen 1 with Screen 2 colors (something I was always curious about), add some more curiosity about the mouse on the MSX, finish with the Assembly thing and this thing was born.  
+It started wit a redesign of the **[Change Graph Kit](https://github.com/farique1/Change-Graph-Kit)** interface that I didn't want to do with Basic and `PRINT`ing, a slow, cumbersome and not intuitive way to do a redesign. Combine it with me stumbling on some pages about the Screen 1 with Screen 2 colors (something I was always curious about), add some more curiosity about the mouse on the MSX, finish with the Assembly thing and this thing was born.  
   
 **MASCIISDRAWX** is a Screen 1 paint program (soon to be upgraded to Screen 1.5<sup>[1](#references)</sup>, that's the whole point) made completely in Assembly (except for the disk routines, of course, life is too short) with a Basic loader and a lot of mouse functionality. Most of the commands are key driven but using the mouse is a breeze and highly recommended.  
   
 As a tile mapped screen, the workflow is to edit the character patterns and colors and assemble them on the screen, **MASCIISDRAWX** has extensive functionality on both regards.  
   
-Designing a screen character by character is not an easy task so  **MASCIISDRAWX** will shortly feature an importer for character patterns, probably integrated with **[Fontoraw](temp)**, to kickstart the creation process. For now its picking crumbs all the way.  
+Designing a screen character by character is not an easy task so  **MASCIISDRAWX** will shortly feature an importer for character patterns, probably integrated with **[Fontoraw](https://github.com/farique1/Fontoraw)**, to kickstart the creation process. For now its picking crumbs all the way.  
   
 **MASCIISDRAWX** was the first Assembly program I ever made and every single line is commented. So apart from the fact it could probably have half the size and double the speed I imagine it is a nice program to go through if you are learning. Not a lot of fancy techinics, instead, a simple, easy to follow code that works as it should.  
   
